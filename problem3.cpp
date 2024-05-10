@@ -80,54 +80,7 @@ Node *nodeWithMimumValue(Node *node) {
         current = current->left;
     return current;
 }
-Node *deleteNode(Node *node, int key){
-    if(node==NULL){
-        return node;
-    }
-    if(key<node->key){
-        node->left= deleteNode(node->left,key);
-    }else if(key>node->key){
-        node->right= deleteNode(node->right,key);
-    }else{
-        if(node->right==NULL||node->left==NULL){
-        Node* temp=node->left?node->left:node->right;
-        if(temp==NULL){
-            temp=node;
-            node=NULL;
-        }else{
-            *node=*temp;}
-            free(temp);
-        }else{
-            Node *temp = nodeWithMimumValue(node->right);
-            node->key = temp->key;
-            node->right = deleteNode(node->right,
-            temp->key);
-        }
-    }
-    if (node==NULL){
-        return node;
-    }
-    node->height=1+max(height(node->left), height(node->right));
-    int balanceFactor= getBalanceFactor(node);
-    if(balanceFactor>1){
-        if(getBalanceFactor(node->left)>=0){
-            return rotateRight(node);
-        }else{
-            node->left= rotateLeft(node->left);
-            return rotateRight(node);
-        }
-    }
-    if(balanceFactor<-1){
-        if(getBalanceFactor(node->right)<=0){
-        return rotateLeft(node);
-    }else{
-        node->right= rotateRight(node->right);
-        return rotateLeft(node);
-    }
-    }
-    return node;
-}
-vector<pair<double, double>> vec;
+vector<pair<int, int>> vec;
 void printTree(Node *root) {
     if (root != nullptr) {
         vec.push_back({root->height, root->key});
@@ -148,22 +101,19 @@ int main()
 {
     Node *AVLTree;
     int n; cin >> n;
-
     for(int i = 0; i < n; i++){
         int x; cin >> x;
         AVLTree = insertNode(AVLTree, x);
     }
     printTree(AVLTree);
     vector<double> ans(maxHeight(AVLTree) + 1);
+    vector<double> cnt(maxHeight(AVLTree) + 1);
     for(auto x:vec){
         ans[x.first] += x.second;
-        //cout << x.first << ' ' << x.second << '\n';
+        cnt[x.first] ++;
     }
     for(int i = 0; i < ans.size(); i++){
-        double cnt = 0;
-        for(auto x:vec) if(x.first == i) cnt ++;
-        if(cnt) ans[i] /= cnt;
+        if(cnt[i] != 0) ans[i] /= cnt[i];
     }
-    reverse(ans.begin(), ans.end()); ans.pop_back();
-    for(int i = 0; i < maxHeight(AVLTree); i++) cout << ans[i] << ' ';
+    for(int i = ans.size() - 1; i > 0; i--) cout << ans[i] << ' ';
 }
